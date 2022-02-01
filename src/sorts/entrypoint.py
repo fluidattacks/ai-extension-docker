@@ -43,32 +43,6 @@ from constants import (
     COMMIT_RISK_LIMIT,
 )
 
-USERPASS = sys.argv[1]
-
-
-def http_get(url: str, return_json: bool = True) -> str:
-    b64 = base64.b64encode(USERPASS.encode()).decode()
-    headers = {"Authorization": "Basic %s" % b64}
-    response = requests.get(url=url, headers=headers)
-    if response.status_code != 200:
-        raise CredentialsError()
-
-    return response.json() if return_json else response.text
-
-
-def get_commit_files(url: str, file_paths: List[str]) -> None:
-    for path in file_paths:
-        url = url.replace("$path", path)
-        response = http_get(url, return_json=False)
-        file_name = path.split("/")[-1]
-        with open(file_name, "w") as file:
-            file.write(response)
-
-
-def get_commit_files_paths(url) -> List[str]:
-    response = http_get(url)
-    return response["changes"]
-
 
 def get_repositories_log(repo_path: str) -> None:
     git_repo: Git = git.Git(repo_path)
@@ -231,27 +205,9 @@ def execute_sorts(files_df: DataFrame, break_pipeline: bool, commit_risk_limit: 
         print("No files in current commit: dataframe is empty")
 
 
-def get_files(
-    organization: str, project_name: str, repository_id: str, commit_id: str
-):
-    """Saves commit files locally and return its paths"""
-    base_api_path = f"https://dev.azure.com/{organization}/{project_name}/_apis/git/repositories"
-    commit_info_url = f"{base_api_path}/{repository_id}/commits/{commit_id}/changes?api-version=6.1-preview.1"
-    items = get_commit_files_paths(commit_info_url)
-    paths = [item["item"]["path"] for item in items if not "isFolder" in item["item"]]
-    commit_files_url = f"{base_api_path}/{repository_id}/items?scopePath=$path&api-version=6.1-preview.1"
-    get_commit_files(commit_files_url, paths)
-
-    return paths
-
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("userpass", type=str)
-    parser.add_argument("organization", type=str)
-    parser.add_argument("project_name", type=str)
-    parser.add_argument("repository_id", type=str)
-    parser.add_argument("commit_id", type=str)
-    parser.add_argument("repo_local_url", type=str)
+    parser.add_argument("repo_local_path", type=str)
     parser.add_argument("break_pipeline", type=str)
     parser.add_argument("commit_risk_limit", type=int, default=COMMIT_RISK_LIMIT)
 
@@ -262,12 +218,12 @@ def main():
     args = get_args()
 
     # Get commit files
-    commit_file_paths = get_files(
-        args.organization, args.project_name, args.repository_id, args.commit_id
-    )
+    git_repo: Git = git.Git(args.repo_local_path)
+    diff = git_repo.diff('HEAD~1..HEAD', name_only=True)
+    commit_file_paths = diff.split("\n")
 
     # Prepare Sorts
-    files_df = prepare_sorts(args.repo_local_url, commit_file_paths)
+    files_df = prepare_sorts(args.repo_local_path, commit_file_paths)
 
     # Execute Sorts
     execute_sorts(files_df, args.break_pipeline, args.commit_risk_limit)
