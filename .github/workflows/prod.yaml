@@ -1,0 +1,24 @@
+jobs:
+  deployContainerImage_aiExtensionDocker:
+    if: ${{ github.repository == 'fluidattacks/ai-extension-docker' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build sorts-extension Docker image
+      run: |
+        docker build . --tag ghcr.io/fluidattacks/sorts-extension:latest
+        docker run ghcr.io/fluidattacks/sorts-extension:latest
+        docker push ghcr.io/fluidattacks/sorts-extension:latest
+name: prod
+on:
+  push:
+    branches: [main]

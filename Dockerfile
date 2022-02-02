@@ -6,6 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
     ca-certificates \
     curl \
     jq \
@@ -16,5 +18,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libunwind8 \
     netcat \
     libssl1.0
+RUN pip3 install --upgrade pip
+RUN pip3 install category-encoders \
+    gitpython \
+    tqdm \
+    prettytable \
+    cryptography \
+    typing-extensions
 
 COPY ./src/sorts ./sorts

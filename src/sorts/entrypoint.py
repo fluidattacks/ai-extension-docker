@@ -1,5 +1,4 @@
 import argparse
-import base64
 from file import (
     extract_features,
     get_extensions_list,
@@ -22,18 +21,12 @@ from pandas import (
 )
 from prettytable import (
     from_csv,
-    PrettyTable,
 )
-import requests
-import subprocess
-import sys
 from typing import (
     List,
     Tuple,
 )
-import urllib.request
 from exceptions import (
-    CredentialsError,
     CommitRiskError,
 )
 from utils import (
@@ -66,7 +59,6 @@ def read_allowed_names() -> Tuple[List[str], ...]:
 
 
 def get_subscription_files_df(repository_path: str) -> DataFrame:
-    files: List[str] = []
     extensions, composites = read_allowed_names()
     ignore_dirs: List[str] = [".git"]
     repo_files = [

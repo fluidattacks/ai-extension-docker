@@ -15,10 +15,6 @@ import git
 from git.cmd import (
     Git,
 )
-from git.exc import (
-    GitCommandError,
-    GitCommandNotFound,
-)
 from numpy import (
     ndarray,
 )
@@ -36,8 +32,8 @@ from tqdm import (
     tqdm,
 )
 from typing import (
+    Dict,
     List,
-    NamedTuple,
     Set,
     Tuple,
 )
@@ -282,7 +278,6 @@ def format_dataset(training_df: DataFrame) -> DataFrame:
 
 def get_repositories_log(dir_: str, repos_paths: ndarray) -> None:
     for repo_path in repos_paths:
-        repo: str = os.path.basename(repo_path)
         git_repo: Git = git.Git(repo_path)
         git_log: str = git_repo.log(
             "--no-merges", "--numstat", "--pretty=%n%H,%ae,%aI%n"
@@ -294,7 +289,6 @@ def get_repositories_log(dir_: str, repos_paths: ndarray) -> None:
 def extract_features(training_df: DataFrame) -> bool:
     success: bool = True
     try:
-        timer: float = time.time()
         with tempfile.TemporaryDirectory() as tmp_dir:
             get_repositories_log(tmp_dir, training_df["repo"].unique())
             tqdm.pandas()
