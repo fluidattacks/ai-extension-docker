@@ -3,11 +3,11 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/fluidattacks/sorts-extension:latest
-      steps:
-        - name: Run Sorts
-          uses: actions/checkout@v2
-          run: |
-              python3 sorts/entrypoint.py /home/runner/work/fluidattacks/ai-extension-docker True 75
+    steps:
+      - name: Run Sorts
+      - uses: actions/checkout@v2
+      - run: |
+            python3 sorts/entrypoint.py /home/runner/work/fluidattacks/ai-extension-docker True 75
 name: dev
 on:
   pull_request:
