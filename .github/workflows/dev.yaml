@@ -6,7 +6,7 @@ jobs:
     steps:
       - name: Run Sorts
       - uses: actions/checkout@v2
-      - run: |
+        run: |
             python3 sorts/entrypoint.py /home/runner/work/fluidattacks/ai-extension-docker True 75
 name: dev
 on:
