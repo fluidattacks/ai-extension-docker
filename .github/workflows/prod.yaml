@@ -15,9 +15,8 @@ jobs:
 
     - name: Build sorts-extension Docker image
       run: |
-        docker build . --tag ghcr.io/fluidattacks/sorts-extension:latest
-        docker run ghcr.io/fluidattacks/sorts-extension:latest
-        docker push ghcr.io/fluidattacks/sorts-extension:latest
+        docker build . --tag "ghcr.io/fluidattacks/sorts-extension:$GITHUB_SHA"
+        docker push "ghcr.io/fluidattacks/sorts-extension:$GITHUB_SHA"
 name: prod
 on:
   push:
