@@ -4,10 +4,10 @@ jobs:
     container:
       image: ghcr.io/fluidattacks/sorts-extension:latest
     steps:
-      - name: Run Sorts
       - uses: actions/checkout@v2
+      - name: Check the commit risk with Sorts
         run: |
-            python3 sorts/entrypoint.py /home/runner/work/fluidattacks/ai-extension-docker True 75
+          python3 /sorts/entrypoint.py $PWD True 75
 name: dev
 on:
   pull_request:
