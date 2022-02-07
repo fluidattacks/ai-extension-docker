@@ -103,6 +103,7 @@ def build_results_csv(
         len(result_df),
     )
     result_df["prob_vuln"] = round(result_df.prob_vuln * 100 - error, 1)
+    result_df["prob_vuln"] = result_df["prob_vuln"].clip(lower=0)
     sorted_files: DataFrame = (
         result_df[result_df.prob_vuln >= 0]
         .sort_values(by="prob_vuln", ascending=False)
