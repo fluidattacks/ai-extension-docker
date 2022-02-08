@@ -210,7 +210,7 @@ def get_args() -> argparse.Namespace:
 def main():
     args = get_args()
 
-    # Get commit files
+    # Get the commit files
     git_repo: Git = git.Git(args.repo_local_path)
     diff = git_repo.diff('HEAD~1..HEAD', name_only=True)
     commit_file_paths = diff.split("\n")
