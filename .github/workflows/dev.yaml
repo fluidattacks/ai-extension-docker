@@ -1,5 +1,6 @@
 jobs:
   sorts-check:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/fluidattacks/sorts-extension:latest
