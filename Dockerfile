@@ -5,7 +5,11 @@ FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install software-properties-common \
+    && add-apt-repository ppa:git-core/ppa \
+    && apt-get update \
+    && apt-get install git
+RUN apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     ca-certificates \
