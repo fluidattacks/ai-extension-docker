@@ -10,24 +10,14 @@ RUN apt-get update && apt-get install software-properties-common \
     && apt-get update \
     && apt-get install git
 RUN apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    ca-certificates \
-    curl \
-    jq \
-    git \
-    iputils-ping \
-    libcurl4 \
-    libicu60 \
-    libunwind8 \
-    netcat \
-    libssl1.0
-RUN pip3 install --upgrade pip
-RUN pip3 install category-encoders \
-    gitpython \
-    tqdm \
-    prettytable \
-    cryptography \
-    typing-extensions
+    python3.8 \
+    python3.8-venv \
+    python3-venv
+
+RUN python3.8 -m venv /opt/venv
+COPY src/sorts/res/requirements.txt .
+RUN . /opt/venv/bin/activate \
+    && pip3 install --upgrade pip \
+    && pip3 install -r requirements.txt
 
 COPY ./src/sorts ./sorts
