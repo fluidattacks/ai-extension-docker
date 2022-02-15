@@ -1,0 +1,6 @@
+category-encoders
+gitpython
+tqdm
+prettytable
+cryptography
+typing-extensions
