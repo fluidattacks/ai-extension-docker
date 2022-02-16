@@ -22,6 +22,7 @@ to use the AI in your project's pipeline.
   - [GitHub](https://github.com/)
   - [Bitbucket](https://bitbucket.org/)
   - [CircleCI](https://circleci.com/)
+  - [Jenkins](https://www.jenkins.io/)
 
 ### Adding the Fluid Attacks AI to your pipeline
 
@@ -115,7 +116,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Run Sorts"
+          name: "Check the commit risk with Sorts"
           command: ". /opt/venv/bin/activate && python3 /sorts/entrypoint.py $CIRCLE_WORKING_DIRECTORY True 75"
 
 workflows:
@@ -123,6 +124,24 @@ workflows:
     jobs:
       - ai_job_name
 ```
+
+#### Jenkins
+
+```
+pipeline {
+    agent {
+        docker { image 'ghcr.io/fluidattacks/sorts-extension:latest' }
+    }
+    stages {
+        stage('Check the commit risk with Sorts') {
+            steps {
+                sh '. /opt/venv/bin/activate && python3 /sorts/entrypoint.py $WORKSPACE True 75'
+            }
+        }
+    }
+}
+```
+
 Depending on the platform used,
 you may need to add or modify the file
 according to your needs
