@@ -14,10 +14,15 @@ RUN apt-get install -y --no-install-recommends \
     python3.8-venv \
     python3-venv
 
-RUN python3.8 -m venv /opt/venv
+RUN python3.8 -m venv /venv
+ENV PATH /venv/bin:$PATH
+
 COPY src/sorts/res/requirements.txt .
-RUN . /opt/venv/bin/activate \
-    && pip3 install --upgrade pip \
+RUN pip3 install --upgrade pip \
     && pip3 install -r requirements.txt
 
 COPY ./src/sorts ./sorts
+
+RUN chmod +x ./sorts/entrypoint.py
+RUN echo '/sorts/entrypoint.py "$@"' > /usr/bin/sorts \
+    && chmod +x /usr/bin/sorts
