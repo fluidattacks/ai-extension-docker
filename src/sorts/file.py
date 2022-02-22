@@ -291,6 +291,8 @@ def get_repositories_log(dir_: str, repos_paths: ndarray) -> None:
 def extract_features(training_df: DataFrame) -> bool:
     success: bool = True
     try:
+        if training_df.empty:
+            return success
         with tempfile.TemporaryDirectory() as tmp_dir:
             get_repositories_log(tmp_dir, training_df["repo"].unique())
             tqdm.pandas()

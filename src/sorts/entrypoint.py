@@ -197,7 +197,7 @@ def execute_sorts(files_df: DataFrame, break_pipeline: bool, commit_risk_limit: 
         if break_pipeline and commit_mean_risk >= commit_risk_limit:
             raise CommitRiskError()
     else:
-        print("No files in current commit: dataframe is empty")
+        print("There are no valid files in current commit: dataframe is empty")
 
 
 def get_args() -> argparse.Namespace:
