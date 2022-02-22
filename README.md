@@ -35,7 +35,7 @@ you only need to have access
 to your git repository
 and use the following command:
 
-`$ . /opt/venv/bin/activate && python3 /sorts/entrypoint.py git_repository_path break_pipeline commit_risk_limit`
+`$ sorts git_repository_path break_pipeline commit_risk_limit`
 
 The command needs the three following arguments:
 
@@ -73,7 +73,7 @@ and confirmed to work properly.
 ai_job_name:
   image: ghcr.io/fluidattacks/sorts-extension:latest
   script:
-    - . /opt/venv/bin/activate && python3 /sorts/entrypoint.py $PWD True 75
+    - sorts $PWD True 75
 ```
 
 #### GitHub
@@ -87,8 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Check the commit risk with Sorts
-        run: |
-          . /opt/venv/bin/activate && python3 /sorts/entrypoint.py $GITHUB_WORKSPACE True 75
+        run: sorts $GITHUB_WORKSPACE True 75
 ```
 
 #### Bitbucket
@@ -101,7 +100,7 @@ pipelines:
     - step:
         name: Check the commit risk with Sorts
         script:
-          - . /opt/venv/bin/activate && python3 /sorts/entrypoint.py $BITBUCKET_CLONE_DIR True 75
+          - sorts $BITBUCKET_CLONE_DIR True 75
 ```
 
 #### CircleCI
@@ -117,7 +116,7 @@ jobs:
       - checkout
       - run:
           name: "Check the commit risk with Sorts"
-          command: ". /opt/venv/bin/activate && python3 /sorts/entrypoint.py $CIRCLE_WORKING_DIRECTORY True 75"
+          command: "sorts $CIRCLE_WORKING_DIRECTORY True 75"
 
 workflows:
   ai_job_name_workflow:
@@ -135,7 +134,7 @@ pipeline {
     stages {
         stage('Check the commit risk with Sorts') {
             steps {
-                sh '. /opt/venv/bin/activate && python3 /sorts/entrypoint.py $WORKSPACE True 75'
+                sh 'sorts $WORKSPACE True 75'
             }
         }
     }

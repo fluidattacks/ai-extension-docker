@@ -6,8 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Check the commit risk with Sorts
-        run: |
-          . /opt/venv/bin/activate && python3 /sorts/entrypoint.py $GITHUB_WORKSPACE True 75
+        run:  sorts $GITHUB_WORKSPACE True 75
 name: dev
 on:
   pull_request:
