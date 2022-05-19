@@ -3,5 +3,6 @@ cryptography==36.0.1
 gitpython==3.1.27
 prettytable==3.1.1
 scikit-learn==0.23.2
+shap==0.40.0
 tqdm==4.62.3
 typing-extensions==4.1.1
