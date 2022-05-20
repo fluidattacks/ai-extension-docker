@@ -167,6 +167,7 @@ def predict_vuln_prob(
     feature_quantity = len(feature_names)
 
     # Separate previous and current commit data
+    pd.options.mode.chained_assignment = None
     for feature in feature_names:
         prev_input_data[str(feature)] = prev_input_data[str(feature)].apply(
             lambda item: item[0]
