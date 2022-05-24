@@ -116,7 +116,7 @@ jobs:
       - checkout
       - run:
           name: "Check the commit risk with Sorts"
-          command: "sorts $CIRCLE_WORKING_DIRECTORY True 75"
+          command: "sorts ${CIRCLE_WORKING_DIRECTORY/#~/$HOME} True 75"
 
 workflows:
   ai_job_name_workflow:
