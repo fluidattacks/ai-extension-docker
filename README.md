@@ -86,6 +86,7 @@ jobs:
       image: ghcr.io/fluidattacks/sorts-extension:latest
     steps:
       - uses: actions/checkout@v1
+      - run: git config --global --add safe.directory $GITHUB_WORKSPACE
       - name: Check the commit risk with Sorts
         run: sorts $GITHUB_WORKSPACE True 75
 ```
