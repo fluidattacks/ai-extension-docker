@@ -296,7 +296,7 @@ def execute_sorts(
         )
         display_results(results_file_name)
         display_mean_risk(commit_mean_risk, commit_risk_limit)
-        if break_pipeline and commit_mean_risk[1] >= commit_risk_limit:
+        if break_pipeline == "True" and commit_mean_risk[1] >= commit_risk_limit:
             raise CommitRiskError()
     else:
         print("There are no valid files in current commit: dataframe is empty")
