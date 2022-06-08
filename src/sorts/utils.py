@@ -3,10 +3,10 @@ import pandas as pd
 from pandas import (
     DataFrame,
 )
-from typing import(
-     List,
-     NamedTuple,
-     Tuple,
+from typing import (
+    List,
+    NamedTuple,
+    Tuple,
 )
 from typing_extensions import TypedDict
 

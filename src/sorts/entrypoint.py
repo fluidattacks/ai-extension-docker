@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
-from typing import (
-    List,
-    Tuple
-)
-
 import git
 import numpy as np
+import os
 import pandas as pd
 import shap
 from constants import (
@@ -37,6 +32,10 @@ from pandas import (
 )
 from prettytable import (
     from_csv,
+)
+from typing import (
+    List,
+    Tuple,
 )
 from utils import (
     get_path,
@@ -237,13 +236,17 @@ def display_results(csv_name: str) -> None:
         + [s + " Risk Contribution" for s in feature_list]
         + ["Biggest Risk Contributor"]
     )
+    divided_fields_list = [
+        field_names[i : i + 5] for i in range(0, len(field_names), 5)
+    ]
     with open(csv_name, "r", encoding="utf8") as csv_file:
         table = from_csv(csv_file, field_names=field_names, delimiter=",")
 
     table.align = "l"
     for feature in MODEL.feature_names:
         print(f"{FEATURES_DESCRIPTION[feature]}")
-    print(table.get_string(start=1, end=20))
+    for divided_field in divided_fields_list:
+        print(table.get_string(fields=divided_field, start=1))
 
 
 def prepare_sorts(
