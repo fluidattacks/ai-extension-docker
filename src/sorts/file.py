@@ -153,10 +153,17 @@ def get_features(row: Series, logs_dir: str) -> FileFeatures:
         seldom_contributors=seldom_contributors,
         num_lines=num_lines,
         commit_frequency=[
-            round(num_commits[0] / file_age[0], 4) if file_age[0] else num_commits[0],
-            round(num_commits[1] / file_age[1], 4) if file_age[1] else num_commits[1]
+            round(num_commits[0] / file_age[0], 4)
+            if file_age[0]
+            else num_commits[0],
+            round(num_commits[1] / file_age[1], 4)
+            if file_age[1]
+            else num_commits[1],
         ],
-        busy_file=[1 if len(unique_authors[0]) > 9 else 0, 1 if len(unique_authors[1]) > 9 else 0],
+        busy_file=[
+            1 if len(unique_authors[0]) > 9 else 0,
+            1 if len(unique_authors[1]) > 9 else 0,
+        ],
         extension=extension,
     )
 
@@ -248,12 +255,14 @@ def get_seldom_contributors(git_metrics: GitMetrics) -> int:
         if commits < prev_avg_commit_per_author:
             prev_seldom_contributors += 1
 
-    return [prev_seldom_contributors ,seldom_contributors]
+    return [prev_seldom_contributors, seldom_contributors]
 
 
 def get_unique_authors(git_metrics: GitMetrics) -> List[List[str]]:
     authors_history: List[str] = list(set(git_metrics["author_email"]))
-    prev_authors_history: List[str] = list(set(git_metrics["author_email"][:-1]))
+    prev_authors_history: List[str] = list(
+        set(git_metrics["author_email"][:-1])
+    )
     authors_history_names: List[str] = [
         author.split("@")[0] for author in authors_history
     ]
