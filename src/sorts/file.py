@@ -172,7 +172,11 @@ def get_file_age(git_metrics: GitMetrics) -> List[int]:
     today: datetime = datetime.now(pytz.utc)
     commit_date_history: List[str] = git_metrics["date_iso_format"]
     file_creation_date = dateutil.parser.isoparse(commit_date_history[-1])
-    previous_commit_date = dateutil.parser.isoparse(commit_date_history[1])
+    previous_commit_date = (
+        dateutil.parser.isoparse(commit_date_history[1])
+        if len(commit_date_history) >= 2
+        else today
+    )
 
     return [
         (previous_commit_date - file_creation_date).days,
@@ -182,8 +186,14 @@ def get_file_age(git_metrics: GitMetrics) -> List[int]:
 
 def get_num_commits(git_metrics: GitMetrics) -> List[int]:
     commit_history: List[str] = git_metrics["commit_hash"]
+    current_num_commits = len(commit_history)
+    prev_num_commits = (
+        len(commit_history) - 1
+        if len(commit_history) >= 2
+        else current_num_commits
+    )
 
-    return [len(commit_history) - 1, len(commit_history)]
+    return [prev_num_commits, current_num_commits]
 
 
 def get_num_lines(file_path: str, git_metrics: GitMetrics) -> List[int]:
@@ -204,37 +214,47 @@ def get_num_lines(file_path: str, git_metrics: GitMetrics) -> List[int]:
 
 def get_midnight_commits(git_metrics: GitMetrics) -> List[int]:
     commit_date_history: List[str] = git_metrics["date_iso_format"]
-    commit_hour_history: List[int] = [
+    current_commit_hour_history: List[int] = [
         dateutil.parser.isoparse(date).hour for date in commit_date_history
     ]
-    previous_commit_hour_history: List[int] = [
-        dateutil.parser.isoparse(date).hour for date in commit_date_history[:-1]
-    ]
+    prev_commit_hour_history: List[int] = (
+        [
+            dateutil.parser.isoparse(date).hour
+            for date in commit_date_history[:-1]
+        ]
+        if len(commit_date_history) >= 2
+        else current_commit_hour_history
+    )
 
     return [
-        sum([1 for hour in previous_commit_hour_history if 0 <= hour < 6]),
-        sum([1 for hour in commit_hour_history if 0 <= hour < 6]),
+        sum([1 for hour in prev_commit_hour_history if 0 <= hour < 6]),
+        sum([1 for hour in current_commit_hour_history if 0 <= hour < 6]),
     ]
 
 
 def get_risky_commits(git_metrics: GitMetrics) -> List[int]:
-    risky_commits: int = 0
-    previous_risky_commits: int = 0
+    current_risky_commits: int = 0
+    prev_risky_commits: int = 0
     commit_stat_history: List[str] = git_metrics["stats"]
     for stat in commit_stat_history:
         insertions, deletions = parse_git_shortstat(stat.replace("--", ", "))
         if insertions + deletions > 200:
-            risky_commits += 1
-    for stat in commit_stat_history[1:]:
-        insertions, deletions = parse_git_shortstat(stat.replace("--", ", "))
-        if insertions + deletions > 200:
-            previous_risky_commits += 1
+            current_risky_commits += 1
+    if len(commit_stat_history) >= 2:
+        for stat in commit_stat_history[1:]:
+            insertions, deletions = parse_git_shortstat(
+                stat.replace("--", ", ")
+            )
+            if insertions + deletions > 200:
+                prev_risky_commits += 1
+    else:
+        prev_risky_commits = current_risky_commits
 
-    return [risky_commits, previous_risky_commits]
+    return [current_risky_commits, prev_risky_commits]
 
 
 def get_seldom_contributors(git_metrics: GitMetrics) -> int:
-    seldom_contributors: int = 0
+    current_seldom_contributors: int = 0
     authors_history: List[str] = git_metrics["author_email"]
     unique_authors: Set[str] = set(authors_history)
     avg_commit_per_author: float = round(
@@ -243,38 +263,44 @@ def get_seldom_contributors(git_metrics: GitMetrics) -> int:
     for author in unique_authors:
         commits: int = authors_history.count(author)
         if commits < avg_commit_per_author:
-            seldom_contributors += 1
-    prev_seldom_contributors: int = 0
-    prev_authors_history: List[str] = git_metrics["author_email"][:-1]
-    prev_unique_authors: Set[str] = set(prev_authors_history)
-    prev_avg_commit_per_author: float = round(
-        len(prev_authors_history) / len(prev_unique_authors), 4
-    )
-    for author in prev_unique_authors:
-        commits: int = prev_authors_history.count(author)
-        if commits < prev_avg_commit_per_author:
-            prev_seldom_contributors += 1
+            current_seldom_contributors += 1
+    if len(authors_history) >= 2:
+        prev_seldom_contributors: int = 0
+        prev_authors_history: List[str] = git_metrics["author_email"][:-1]
+        prev_unique_authors: Set[str] = set(prev_authors_history)
+        prev_avg_commit_per_author: float = round(
+            len(prev_authors_history) / len(prev_unique_authors), 4
+        )
+        for author in prev_unique_authors:
+            commits: int = prev_authors_history.count(author)
+            if commits < prev_avg_commit_per_author:
+                prev_seldom_contributors += 1
+    else:
+        prev_seldom_contributors = current_seldom_contributors
 
-    return [prev_seldom_contributors, seldom_contributors]
+    return [prev_seldom_contributors, current_seldom_contributors]
 
 
 def get_unique_authors(git_metrics: GitMetrics) -> List[List[str]]:
-    authors_history: List[str] = list(set(git_metrics["author_email"]))
-    prev_authors_history: List[str] = list(
-        set(git_metrics["author_email"][:-1])
-    )
+    current_authors_history: List[str] = list(set(git_metrics["author_email"]))
     authors_history_names: List[str] = [
-        author.split("@")[0] for author in authors_history
+        author.split("@")[0] for author in current_authors_history
     ]
     for index, author_name in enumerate(authors_history_names):
         if authors_history_names.count(author_name) > 1:
-            del authors_history[index]
+            del current_authors_history[index]
             del authors_history_names[index]
-    for index, author_name in enumerate(prev_authors_history):
-        if prev_authors_history.count(author_name) > 1:
-            del prev_authors_history[index]
+    if len(current_authors_history) >= 2:
+        prev_authors_history: List[str] = list(
+            set(git_metrics["author_email"][:-1])
+        )
+        for index, author_name in enumerate(prev_authors_history):
+            if prev_authors_history.count(author_name) > 1:
+                del prev_authors_history[index]
+    else:
+        prev_authors_history = current_authors_history
 
-    return [prev_authors_history, authors_history]
+    return [prev_authors_history, current_authors_history]
 
 
 def encrypt_column_values(value: str) -> str:
