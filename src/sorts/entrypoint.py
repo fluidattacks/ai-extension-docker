@@ -6,6 +6,8 @@ import numpy as np
 import os
 import pandas as pd
 import shap
+import sys
+import traceback
 from constants import (
     COMMIT_RISK_LIMIT,
     FEATURES_DESCRIPTION,
@@ -314,18 +316,21 @@ def get_args() -> argparse.Namespace:
 
 
 def main():
-    args = get_args()
+    try:
+        args = get_args()
+        # Get commit files
+        git_repo: Git = git.Git(args.repo_local_path)
+        diff = git_repo.diff("HEAD~1..HEAD", name_only=True)
+        commit_file_paths = diff.split("\n")
 
-    # Get commit files
-    git_repo: Git = git.Git(args.repo_local_path)
-    diff = git_repo.diff("HEAD~1..HEAD", name_only=True)
-    commit_file_paths = diff.split("\n")
+        # Prepare Sorts
+        files_df = prepare_sorts(args.repo_local_path, commit_file_paths)
 
-    # Prepare Sorts
-    files_df = prepare_sorts(args.repo_local_path, commit_file_paths)
-
-    # Execute Sorts
-    execute_sorts(files_df, args.break_pipeline, args.commit_risk_limit)
+        # Execute Sorts
+        execute_sorts(files_df, args.break_pipeline, args.commit_risk_limit)
+    except:
+        traceback.print_exc()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
